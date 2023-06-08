@@ -6,8 +6,8 @@ import torch.nn.functional as F
 from data import HSIDataLoader
 import numpy as np
 from plot import show_tensor_image
+from utils import device
 
-device = "cuda" if torch.cuda.is_available() else "cpu"
 
 class Diffusion(object):
     def __init__(self, T=1000) -> None:

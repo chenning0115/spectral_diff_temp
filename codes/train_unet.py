@@ -14,11 +14,12 @@ from unet3d import SimpleUnet
 from unet import UNetModel
 from diffusion import Diffusion
 from utils import AvgrageMeter, recorder, show_img
+from utils import device
 
-batch_size = 200
-patch_size = 16
+batch_size = 20
+patch_size = 64
 select_spectral = []
-spe = 200
+spe = 104
 channel = 1 #3d channel
 
 epochs = 100000 # Try more!
@@ -26,10 +27,10 @@ lr = 1e-4
 T=500
 
 rgb = [30,50,90]
-path_prefix = "./save_model/indian_unet3d_patch16_without_downsample_kernal5_fix"
+path_prefix = "./save_model/pavia_unet3d_patch64_without_downsample_kernal5_fix"
 
 
-device = "cuda" if torch.cuda.is_available() else "cpu"
+#device = "cuda" if torch.cuda.is_available() else "cpu"
 
 def plot_by_imgs(imgs, rgb=[1,100,199]):
     assert len(imgs) > 0
@@ -140,7 +141,7 @@ def save_model(model, path):
 
 def train():
     dataloader = HSIDataLoader(
-        {"data":{"data_sign":"Indian", "padding":False, "batch_size":batch_size, "patch_size":patch_size, "select_spectral":select_spectral}})
+        {"data":{"data_sign":"Pavia", "padding":False, "batch_size":batch_size, "patch_size":patch_size, "select_spectral":select_spectral}})
     train_loader,X,Y = dataloader.generate_torch_dataset(light_split=True)
     diffusion = Diffusion(T=T)
     model = SimpleUnet(_image_channels=channel)
@@ -192,8 +193,8 @@ def train():
         print("[TRAIN EPOCH %s] loss=%s" % (epoch, loss_metric.get_avg()))
 
         if epoch % 100 == 0:
-            sample_by_t(diffusion, model, X)
-            sample_eval(diffusion, model, X)
+            #sample_by_t(diffusion, model, X)
+            #sample_eval(diffusion, model, X)
             _, splitX, splitY = dataloader.generate_torch_dataset(split=True)
             # recon_all_fig(diffusion, model, splitX, dataloader, big_img_size=[145, 145])
             path = "%s/unet3d_%s.pkl" % (path_prefix, epoch)

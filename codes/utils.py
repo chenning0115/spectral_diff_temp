@@ -3,6 +3,8 @@ import json, time
 import numpy as np
 from torchvision import transforms 
 import matplotlib.pyplot as plt
+import torch
+device = "cuda:6" if torch.cuda.is_available() else "cpu"
 
 def show_img(x):
     def trans(x):

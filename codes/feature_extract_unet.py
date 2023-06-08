@@ -10,32 +10,31 @@ import numpy as np
 import math
 import matplotlib.pyplot as plt
 
-from new_data import HSIDataLoader, TestDS, TrainDS
+from data import HSIDataLoader, TestDS, TrainDS
 from unet3d import SimpleUnet
-from spectral_transformer import SpectralTransNet
 from unet import UNetModel
 from diffusion import Diffusion
 from utils import AvgrageMeter, recorder, show_img
+from utils import device
 
-batch_size = 128
-patch_size = 16
+batch_size = 8
+patch_size = 64
 select_spectral = []
-spe = 144
+spe = 104
 channel = 1 #3d channel
 
 epochs = 100000 # Try more!
 lr = 1e-4
 T=500
 
-rgb = [50,60,130]
-model_load_path = "./save_model/houston_unet3d_patch16_without_downsample_kernal5_fix"
-model_name = "unet3d_3000.pkl"
-save_feature_path_prefix = "./save_feature/houston_unet3d_patch16_without_downsample_kernal5_fix/save_feature"
+rgb = [50,60,100]
+model_load_path = "./save_model/pavia_unet3d_patch64_without_downsample_kernal5_fix"
+model_name = "unet3d_31900.pkl" #loss=0.0258
+save_feature_path_prefix = "./save_feature/pavia_unet3d_patch64_without_downsample_kernal5_fix_31900/save_feature"
 
-TList = [5, 10, 100, 200, 400]
+TList = [5, 10, 50, 100, 200, 400]
 
 
-device = "cuda" if torch.cuda.is_available() else "cpu"
 
 def plot_by_imgs(imgs, rgb=[1,100,199]):
     assert len(imgs) > 0
@@ -120,7 +119,7 @@ def sample_by_t(diffusion, model, X):
         plot_spectral(x0, recon_x0)
 
 def inference_mini_batch(model, xt, t):
-    mini_batch_size = 10
+    mini_batch_size = 4
     batch, channel, c, h, w = xt.shape
     step = batch // mini_batch_size + 1
 
@@ -212,7 +211,7 @@ def save_model(model, path):
 
 
 def extract():
-    dataloader = HSIDataLoader({"data":{"data_sign":"Houston", "padding":False, "batch_size":batch_size, "patch_size":patch_size, "select_spectral":select_spectral}})
+    dataloader = HSIDataLoader({"data":{"data_sign":"Pavia", "padding":False, "batch_size":batch_size, "patch_size":patch_size, "select_spectral":select_spectral}})
     train_loader,X,Y = dataloader.generate_torch_dataset(light_split=True)
     diffusion = Diffusion(T=T)
 
@@ -222,7 +221,8 @@ def extract():
         os.makedirs(save_feature_path_prefix)
 
     model_path = "%s/%s" % (model_load_path, model_name)
-    model.load_state_dict(torch.load(model_path))
+    print('model path is ', model_path)
+    model.load_state_dict(torch.load(model_path, map_location=device))
   
     model.to(device)
     print("load model done. model_path=%s" % (save_feature_path_prefix))

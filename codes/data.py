@@ -85,6 +85,9 @@ class HSIDataLoader(object):
         elif self.data_sign == "Houston":
             data = sio.loadmat('../data/Houston.mat')['img']
             labels = sio.loadmat('../data/Houston_gt.mat')['Houston_gt']
+        elif self.data_sign == "Salinas":
+            data = sio.loadmat('../data/Salinas_corrected.mat')['salinas_corrected']
+            labels = sio.loadmat('../data/Salinas_gt.mat')['salinas_gt']
         else:
             pass
         print("ori data load shape is", data.shape, labels.shape)
@@ -236,6 +239,11 @@ class HSIDataLoader(object):
             new_data = np.zeros((h,w,spe+1))
             new_data[:,:,:spe] = data
             new_data[:,:,spe] = data[:,:,spe-1]
+            return new_data
+        if self.data_sign == "Salinas":
+            h, w, spe = data.shape
+            new_data = np.zeros((h,w,spe+4))
+            new_data[:,:,2:spe+2] = data
             return new_data
         return data
 
